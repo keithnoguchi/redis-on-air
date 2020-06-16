@@ -35,6 +35,17 @@
       when: master is false
       become: true
 
+    - name: sentinel configuration
+      template:
+        src: "templates/etc/{{ item }}.j2"
+        dest: "/etc/{{ item }}"
+        mode: 0644
+        owner: root
+        group: root
+      with_items:
+        - redis-sentinel.conf
+      become: true
+
     - name: restart systemd services
       systemd: name={{ item }} enabled=true state=restarted
       with_items:
