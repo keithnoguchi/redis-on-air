@@ -24,7 +24,7 @@ jobs:
           command: pacman -Sy --noconfirm tar git openssh
       - checkout
       - persist_to_workspace:
-          root: /home/circleci/project/kube-on-air
+          root: /home/circleci/project/redis-on-air
           paths:
             - .
   ansible:
