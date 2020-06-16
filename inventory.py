@@ -9,24 +9,27 @@ import libvirt
 
 def main():
     inventory = {'all': {'hosts': [],
-                         'vars': {'ansible_user': os.environ['USER']}},
-                 'cluster': {'hosts': [],
-                             'vars': {'cluster_node_prefixlen': 24}}}
+                         'vars': {'ansible_user': os.environ['USER']}}}
     inventory['host'] = {'hosts': ['localhost'],
                          'vars': {'ansible_connection': 'local'}}
     inventory['head'] = head()
     inventory['work'] = work()
 
+    master_ip = ''
     hostvars = {}
     for type in ['head', 'work']:
         for host in inventory[type]['hosts']:
             num = int(''.join(filter(str.isdigit, host)))
             inventory['all']['hosts'].append(host)
-            inventory['cluster']['hosts'].append(host)
-            hostvars[host] = {'name': host,
-                              # Pick the first head as the head head node.
-                              'head': inventory['head']['hosts'][0],
-                              'cluster_node_ip': '172.31.255.%d' % num}
+            hostvars[host] = {'name': host}
+            if host == inventory['work']['hosts'][0]:
+                # First worker as the redis master.
+                master_ip = '172.31.255.%d' % num
+                hostvars[host] = {'master': True,
+                        'master_ip': master_ip}
+            elif master_ip != '':
+                hostvars[host] = {'master': False,
+                        'master_ip': master_ip}
 
     # https://github.com/ansible/ansible/commit/bcaa983c2f3ab684dca6c2c2c8d1997742260761
     inventory['_meta'] = {'hostvars': hostvars}

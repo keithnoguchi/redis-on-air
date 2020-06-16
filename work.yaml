@@ -20,7 +20,6 @@
         regexp: "^bind"
         line: "# bind"
       become: true
-      when: not ci|bool
 
     - name: disable protected mode
       lineinfile:
@@ -28,7 +27,13 @@
         regexp: "^protected-mode yes"
         line: "protected-mode no"
       become: true
-      when: not ci|bool
+
+    - name: specify the master
+      lineinfile:
+        path: /etc/redis.conf
+        line: "slaveof {{ master_ip }} 6379"
+      when: master is false
+      become: true
 
     - name: restart systemd services
       systemd: name={{ item }} enabled=true state=restarted
