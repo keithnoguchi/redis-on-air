@@ -14,6 +14,22 @@
           - redis
       become: true
 
+    - name: disable binding
+      lineinfile:
+        path: /etc/redis.conf
+        regexp: "^bind"
+        line: "# bind"
+      become: true
+      when: not ci|bool
+
+    - name: disable protected mode
+      lineinfile:
+        path: /etc/redis.conf
+        regexp: "^protected-mode yes"
+        line: "protected-mode no"
+      become: true
+      when: not ci|bool
+
     - name: restart systemd services
       systemd: name={{ item }} enabled=true state=restarted
       with_items:
