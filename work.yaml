@@ -39,16 +39,18 @@
       template:
         src: "templates/etc/{{ item }}.j2"
         dest: "/etc/{{ item }}"
-        mode: 0644
-        owner: root
-        group: root
+        mode: 0640
+        owner: redis
+        group: redis
       with_items:
         - redis-sentinel.conf
+        - systemd/system/redis-sentinel.service
       become: true
 
     - name: restart systemd services
       systemd: name={{ item }} enabled=true state=restarted
       with_items:
         - redis
+        - redis-sentinel
       become: true
       when: not ci|bool

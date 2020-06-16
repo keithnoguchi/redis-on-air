@@ -2,3 +2,5 @@ sentinel monitor redis-primary {{ master_ip }} 6379 2
 sentinel down-after-milliseconds redis-primary 2000
 sentinel failover-timeout redis-primary 5000
 protected-mode no
+pidfile "/var/run/redis-sentinel.pid"
+daemonize yes

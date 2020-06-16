@@ -1,0 +1,15 @@
+[Unit]
+Description=Sentinel for Redis
+After=network.target
+
+[Service]
+Type=forking
+User=redis
+Group=redis
+PIDFILE=/var/run/redis-sentinel.pid
+ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
