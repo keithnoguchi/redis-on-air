@@ -28,6 +28,13 @@
         line: "protected-mode no"
       become: true
 
+    - name: clear the previous master
+      lineinfile:
+        path: /etc/redis.conf
+        regexp: "^slaveof *"
+        state: absent
+      become: true
+
     - name: specify the master
       lineinfile:
         path: /etc/redis.conf

@@ -17,19 +17,18 @@ def main():
 
     master_ip = ''
     hostvars = {}
+    # First worker as the redis master.
+    master = inventory['work']['hosts'][0]
+    master_ip = '172.31.255.%d' % int(''.join(filter(str.isdigit, master)))
     for type in ['head', 'work']:
         for host in inventory[type]['hosts']:
-            num = int(''.join(filter(str.isdigit, host)))
             inventory['all']['hosts'].append(host)
-            hostvars[host] = {'name': host}
-            if host == inventory['work']['hosts'][0]:
-                # First worker as the redis master.
-                master_ip = '172.31.255.%d' % num
-                hostvars[host] = {'master': True,
-                        'master_ip': master_ip}
+            hostvars[host] = {'name': host,
+                              'master_ip': master_ip}
+            if host == master:
+                hostvars[host]['master'] = True
             elif master_ip != '':
-                hostvars[host] = {'master': False,
-                        'master_ip': master_ip}
+                hostvars[host]['master'] = False
 
     # https://github.com/ansible/ansible/commit/bcaa983c2f3ab684dca6c2c2c8d1997742260761
     inventory['_meta'] = {'hostvars': hostvars}
