@@ -3,21 +3,18 @@ all:
   vars:
     ansible_host: localhost
     ansible_connection: local
-    head: head
+    master_ip: localhost
+    quorum: 1
   children:
-    work:
+    cluster:
       children:
         head:
           hosts: localhost
         work:
           hosts: localhost
-    host:
+    head:
+      hosts: localhost
+    work:
       hosts: localhost
       vars:
-        cluster_node_ip: 172.31.255.254
-        cluster_node_prefixlen: 24
-    guest:
-      hosts: localhost
-      vars:
-        cluster_node_ip: 172.31.255.1
-        cluster_node_prefixlen: 24
+        master: true

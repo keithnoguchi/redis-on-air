@@ -18,8 +18,7 @@ list ls:
 .PHONY: ansible
 ci-%: ci-ping-%
 	ansible-playbook -vvv $*.yaml \
-		-i inventory.yaml -c local -e ci=true -e build=true \
-		-e network=true -e gitsite=https://github.com/
+		-i inventory.yaml -c local -e ci=true -e gitsite=https://github.com/
 ci-ping-%:
 	ansible -vvv -m ping -i inventory.yaml -c local $*
 ansible:

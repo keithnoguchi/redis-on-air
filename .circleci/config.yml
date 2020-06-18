@@ -44,4 +44,4 @@ jobs:
           command: pacman -Sy --noconfirm tar make ansible
       - attach_workspace:
           at: .
-      - run: SUDO= GOROOT=/usr/lib/go GOPATH=$HOME make work
+      - run: SUDO= GOROOT=/usr/lib/go GOPATH=$HOME make ci-work
