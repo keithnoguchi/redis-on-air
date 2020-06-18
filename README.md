@@ -36,7 +36,8 @@ work12                     : ok=7    changed=2    unreachable=0    failed=0    s
 work13                     : ok=8    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```
 
-As explained in [HA Redis Cluster], use `redis-cli` to check both read and write:
+As explained in [HA Redis Cluster], let's use `redis-cli` to check
+both read and write:
 
 First write by talking to the port `6380`:
 
@@ -76,8 +77,9 @@ Let's have fun with failover/HA!
 
 ### Non-master failover
 
-Let's shutdown non-primary workers, first.  We'll shutdown the non-primary worker through
-`virsh shutdown` and see if [haproxy] correctly manage the failover.
+Let's shutdown non-primary workers, first.  We'll shutdown the non-primary
+worker through `virsh shutdown` and see if [haproxy] correctly manage the
+failover.
 
 With the `redis-cli info replication`, we can get the master node:
 
@@ -86,8 +88,8 @@ redis-cli -h head10 -p 6379 info replication |grep master_host
 master_host:172.31.255.12
 ```
 
-Okay, `work12` is the master now.  Let's shutdown `woke13` to see if `haproxy` detect
-it and avoid talking to the failed worker:
+Okay, `work12` is the master now.  Let's shutdown `woke13` to see if `haproxy`
+detect it and avoid talking to the failed worker:
 
 ```sh
 sudo virsh shutdown work13
