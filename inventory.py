@@ -26,7 +26,7 @@ def main():
 
     # variables for work/redis nodes
     # Pick the first worker as the master of the quorum.
-    quorum = len(inventory['work']['hosts'])
+    quorum = len(inventory['work']['hosts']) / 2 + 1
     master = inventory['work']['hosts'][0]
     master_ip = '172.31.255.%d' % int(''.join(filter(str.isdigit, master)))
     inventory['work']['vars'] = {'master_ip': master_ip,

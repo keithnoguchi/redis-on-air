@@ -96,36 +96,18 @@ sudo virsh shutdown work13
 Domain work13 is being shutdown
 ```
 
-Override the previous key:
+Let's check `set`:
 
 ```sh
-for i in {1..10}; do redis-cli -h head10 -p 6380 set hello$i "great world$i"; done
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
+redis-benchmark -h head10 -p 6380 -q -e -t set
+SET: 18885.74 requests per second
 ```
 
-And make sure we get the new value:
+and `get`:
 
 ```sh
-for i in {1..10}; do redis-cli -h head10 -p 6379 get hello$i; done
-"great world1"
-"great world2"
-"great world3"
-"great world4"
-"great world5"
-"great world6"
-"great world7"
-"great world8"
-"great world9"
-"great world10"
+redis-benchmark -h head10 -p 6379 -q -e -t get
+GET: 21172.98 requests per second
 ```
 
 Cool.  Let's restart `work13` and see if it works great, too:
@@ -134,103 +116,42 @@ Cool.  Let's restart `work13` and see if it works great, too:
 sudo virsh start work13
 ```
 
-and the read:
+First `set`:
 
 ```sh
-for i in {1..10}; do redis-cli -h head10 -p 6379 get hello$i; done
-"great world1"
-"great world2"
-"great world3"
-"great world4"
-"great world5"
-"great world6"
-"great world7"
-"great world8"
-"great world9"
-"great world10"
+redis-benchmark -h head10 -p 6380 -q -e -t set
+SET: 19451.47 requests per second
+```
+
+and `set`:
+
+```sh
+redis-benchmark -h head10 -p 6379 -q -e -t get
+GET: 21958.72 requests per second
 ```
 
 ### Master failover
 
-#### Machine level failover
-
-For the master failover, it seems the machine wide failover doesn't work,
-as `redis-sentinel` can't detect it correctly:
+Let's shutdown the master worker and see how the read and write operation
+failover.
 
 ```sh
 sudo virsh shutdown work12
 ```
 
-```sh
-for i in {1..10}; do redis-cli -h head10 -p 6379 info replication | grep master_host; done
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-master_host:172.31.255.12
-```
-
-```
-for i in {1..10}; do redis-cli -h head10 -p 6380 set hello$i world$i; done
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-Error: Server closed the connection
-```
-
-#### Process level failover
-
-But the [redis] process level failover does work:
+First `set`:
 
 ```sh
-ssh work12 sudo systemctl kill --signal=SIGKILL redis
+redis-benchmark -h head10 -p 6380 -q -e -t set
+SET: 20746.89 requests per second
 ```
 
-and write:
-
+and `get`:
 
 ```sh
-for i in {1..10}; do redis-cli -h head10 -p 6380 set hello$i "definitely the great world$i"; done
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
-OK
+redis-benchmark -h head10 -p 6379 -q -e -t get
+GET: 22977.94 requests per second
 ```
-
-and read:
-
-```sh
-for i in {1..10}; do redis-cli -h head10 -p 6379 get hello$i; done
-"definitely the great world1"
-"definitely the great world2"
-"definitely the great world3"
-"definitely the great world4"
-"definitely the great world5"
-"definitely the great world6"
-"definitely the great world7"
-"definitely the great world8"
-"definitely the great world9"
-"definitely the great world10"
-```
-
-I'll take a look at the machine level failover and update the result.
 
 Happy Hacking!
 
