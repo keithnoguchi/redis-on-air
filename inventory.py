@@ -17,14 +17,16 @@ def main():
 
     master_ip = ''
     hostvars = {}
-    # First worker as the redis master.
+    # Pick the first worker as the master of the quorum.
+    quorum = len(inventory['work']['hosts'])
     master = inventory['work']['hosts'][0]
     master_ip = '172.31.255.%d' % int(''.join(filter(str.isdigit, master)))
+    inventory['all']['vars'] = {'master_ip': master_ip,
+                                'quorum': quorum}
     for type in ['head', 'work']:
         for host in inventory[type]['hosts']:
             inventory['all']['hosts'].append(host)
-            hostvars[host] = {'name': host,
-                              'master_ip': master_ip}
+            hostvars[host] = {'name': host}
             if host == master:
                 hostvars[host]['master'] = True
             elif master_ip != '':
