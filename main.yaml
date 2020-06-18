@@ -1,0 +1,6 @@
+---
+- name: provision the haproxy head
+  import_playbook: head.yaml
+
+- name: provision the redis workers
+  import_playbook: work.yaml

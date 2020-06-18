@@ -3,18 +3,15 @@ all:
   vars:
     ansible_host: localhost
     ansible_connection: local
-    master_ip: localhost
-    quorum: 1
   children:
-    cluster:
-      children:
-        head:
-          hosts: localhost
-        work:
-          hosts: localhost
     head:
       hosts: localhost
+      vars:
+        workers:
+          - name: localhost
+            ipv4: "127.0.0.1"
     work:
       hosts: localhost
       vars:
-        master: true
+        master_ip: "127.0.0.1"
+        quorum: 1

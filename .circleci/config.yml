@@ -18,6 +18,10 @@ workflows:
       - worker:
           requires:
             - ansible
+      - all:
+          requires:
+            - head
+            - worker
 jobs:
   checkout:
     <<: *defaults
@@ -57,3 +61,12 @@ jobs:
       - attach_workspace:
           at: .
       - run: SUDO= GOROOT=/usr/lib/go GOPATH=$HOME make ci-work
+  all:
+    <<: *defaults
+    steps:
+      - run:
+          name: install tar and other tools to run the test
+          command: pacman -Sy --noconfirm tar make ansible
+      - attach_workspace:
+          at: .
+      - run: SUDO= GOROOT=/usr/lib/go GOPATH=$HOME make ci-main

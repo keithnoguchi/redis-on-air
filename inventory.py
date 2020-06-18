@@ -17,20 +17,30 @@ def main():
 
     master_ip = ''
     hostvars = {}
+
+    # variables for head/haproxy nodes
+    inventory['head']['vars'] = {'workers': []}
+    for host in inventory['head']['hosts']:
+        inventory['all']['hosts'].append(host)
+        hostvars[host] = {'name': host}
+
+    # variables for work/redis nodes
     # Pick the first worker as the master of the quorum.
     quorum = len(inventory['work']['hosts'])
     master = inventory['work']['hosts'][0]
     master_ip = '172.31.255.%d' % int(''.join(filter(str.isdigit, master)))
-    inventory['all']['vars'] = {'master_ip': master_ip,
-                                'quorum': quorum}
-    for type in ['head', 'work']:
-        for host in inventory[type]['hosts']:
-            inventory['all']['hosts'].append(host)
-            hostvars[host] = {'name': host}
-            if host == master:
-                hostvars[host]['master'] = True
-            elif master_ip != '':
-                hostvars[host]['master'] = False
+    inventory['work']['vars'] = {'master_ip': master_ip,
+                                 'quorum': quorum}
+    for host in inventory['work']['hosts']:
+        inventory['all']['hosts'].append(host)
+        hostvars[host] = {'name': host}
+        num = int(''.join(filter(str.isdigit, host)))
+        inventory['head']['vars']['workers'].append({'name': host, 'ipv4': '172.31.255.%d' % num})
+        if host == master:
+            hostvars[host]['master'] = True
+        elif master_ip != '':
+            hostvars[host]['master'] = False
+
 
     # https://github.com/ansible/ansible/commit/bcaa983c2f3ab684dca6c2c2c8d1997742260761
     inventory['_meta'] = {'hostvars': hostvars}
