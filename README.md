@@ -150,6 +150,8 @@ for i in {1..10}; do redis-cli -h head10 -p 6379 get hello$i; done
 
 ### Master failover
 
+#### Machine level failover
+
 For the master failover, it seems the machine wide failover doesn't work,
 as `redis-sentinel` can't detect it correctly:
 
@@ -170,6 +172,22 @@ master_host:172.31.255.12
 master_host:172.31.255.12
 master_host:172.31.255.12
 ```
+
+```
+for i in {1..10}; do redis-cli -h head10 -p 6380 set hello$i world$i; done
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+Error: Server closed the connection
+```
+
+#### Process level failover
 
 But the [redis] process level failover does work:
 
