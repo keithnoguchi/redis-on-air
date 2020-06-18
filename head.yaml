@@ -1,0 +1,22 @@
+---
+- name: setup redis cluster proxy with HAProxy
+  hosts: head
+  gather_facts: true
+  vars:
+    ci: false
+    latest: false
+  tasks:
+    - name: install packages
+      pacman:
+        state: present
+        update_cache: true
+        name:
+          - haproxy
+      become: true
+
+    - name: restart systemd services
+      systemd: name={{ item }} enabled=true state=restarted
+      with_items:
+        - haproxy
+      become: true
+      when: not ci|bool

@@ -12,6 +12,9 @@ workflows:
       - ansible:
           requires:
             - checkout
+      - head:
+          requires:
+            - ansible
       - worker:
           requires:
             - ansible
@@ -36,6 +39,15 @@ jobs:
       - attach_workspace:
           at: .
       - run: SUDO= make ansible
+  head:
+    <<: *defaults
+    steps:
+      - run:
+          name: install tar and other tools to run the test
+          command: pacman -Sy --noconfirm tar make ansible
+      - attach_workspace:
+          at: .
+      - run: SUDO= GOROOT=/usr/lib/go GOPATH=$HOME make ci-head
   worker:
     <<: *defaults
     steps:
