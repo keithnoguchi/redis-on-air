@@ -20,15 +20,15 @@ backend stats
 	stats show-legends
 	stats admin if TRUE
 
-frontend redis-read
-	bind *:6379
-	default_backend redis-online
-
 frontend redis-write
-	bind *:6380
-	default_backend redis-primary
+	bind *:6379
+	default_backend redis-rw
 
-backend redis-primary
+frontend redis-read
+	bind *:6380
+	default_backend redis-ro
+
+backend redis-rw
 	mode tcp
 	balance first
 	option tcp-check
@@ -37,10 +37,10 @@ backend redis-primary
 	tcp-check expect string role:master
 
 {% for item in workers %}
-	server {{ item.name }}:{{ item.ipv4 }}:6379 {{ item.ipv4 }}:6379 maxconn 1024 check inter 1s
+	server {{ item.name }}:{{ item.ipv4 }}:6379 {{ item.ipv4 }}:6379 maxconn 1024 check inter 1s rise 10 on-marked-down shutdown-sessions
 {% endfor %}
 
-backend redis-online
+backend redis-ro
 	mode tcp
 	balance roundrobin
 	option tcp-check
@@ -49,5 +49,5 @@ backend redis-online
 	tcp-check expect string +PONG
 
 {% for item in workers %}
-	server {{ item.name}}:{{ item.ipv4 }}:6379 {{ item.ipv4 }}:6379 maxconn 1024 check inter 1s
+	server {{ item.name}}:{{ item.ipv4 }}:6379 {{ item.ipv4 }}:6379 maxconn 1024 check inter 1s rise 10 on-marked-down shutdown-sessions
 {% endfor %}
