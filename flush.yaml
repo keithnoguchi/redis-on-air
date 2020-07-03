@@ -1,0 +1,6 @@
+---
+- hosts: work
+  gather_facts: false
+  tasks:
+    - name: flush data
+      command: redis-cli flushall
