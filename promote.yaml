@@ -1,0 +1,6 @@
+---
+- hosts: work11
+  gather_facts: false
+  tasks:
+    - name: trigger the promotion through redis-cli
+      command: "redis-cli -p 26379 sentinel failover redis-primary"

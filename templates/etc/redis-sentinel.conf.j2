@@ -1,3 +1,4 @@
+syslog-enabled yes
 sentinel monitor redis-primary {{ master_ip }} 6379 {{ quorum }}
 sentinel down-after-milliseconds redis-primary 2000
 sentinel failover-timeout redis-primary 5000
